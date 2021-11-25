@@ -80,8 +80,6 @@ const App = () => {
       console.log("Fetching GIF list...");
 
       getGifList();
-
-      // setGifList(TEST_GIFS);
     }
   }, [walletAddress]);
 
@@ -167,7 +165,7 @@ const App = () => {
       console.log("GIF successfully sent to program:", inputValue);
       await getGifList();
     } catch (error) {
-
+      console.error("Error sending GIF:", error);
     }
 
     console.log("GIF link:", inputValue);
@@ -210,6 +208,7 @@ const App = () => {
         <div className="gif-grid">
           {gifList.map((item, index) => (
             <div className="gif-item" key={index}>
+              <span className="gif-address-text">Added by {item.userAddress.toString()}</span>
               <img src={item.gifLink} alt={item.gifLink} />
             </div>
           ))}
