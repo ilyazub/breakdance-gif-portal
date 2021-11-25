@@ -1,2 +1,2 @@
-run="npm run dev"
+run="yarn dev"
 entrypoint="src/App.jsx"
