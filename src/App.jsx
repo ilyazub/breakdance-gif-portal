@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Program, Provider, web3 } from "@project-serum/anchor";
+const { SystemProgram, Keypair } = web3;
 
 import twitterLogo from "./assets/twitter-logo.svg";
 import "./App.css";
-import idl from "./idl.json";
 
-const { SystemProgram, Keypair } = web3;
-let baseAccount = Keypair.generate();
+import idl from "./idl.json";
+import kp from "./keypair.json";
+
+const arr = Object.values(kp._keypair.secretKey);
+const secret = new Uint8Array(arr);
+let baseAccount = Keypair.fromSecretKey(secret);
+
 const programID = new PublicKey(idl.metadata.address);
 const network = clusterApiUrl("devnet");
 const opts = {
@@ -17,14 +22,6 @@ const opts = {
 // Constants
 const TWITTER_HANDLE = "ilyazub_";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-
-const TEST_GIFS = [
-  "https://media.giphy.com/media/w6ovaV3maxsMDLJLd3/giphy.gif",
-  ,
-  "https://media.giphy.com/media/JiqSKO2Wfdqe83RUob/giphy-downsized.gif",
-  "https://media.giphy.com/media/ubd3YFbbktwGUJtXey/giphy-downsized.gif",
-  "https://media.giphy.com/media/F9DN13Svu0verbakMp/giphy-downsized.gif",
-];
 
 const App = () => {
   const [walletAddress, setWalletAddress] = useState(null);
