@@ -150,12 +150,30 @@ const App = () => {
     }
   };
 
-  const submitGif = () => {
-    if (inputValue.length > 0) {
-      console.log("GIF link:", inputValue);
-    } else {
+  const sendGif = async () => {
+    if (inputValue.length === 0) {
       console.log("Empty input. Try again.");
+      return;
     }
+
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+
+      await program.rpc.addGif(inputValue, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        }
+      });
+
+      console.log("GIF successfully sent to program:", inputValue);
+      await getGifList();
+    } catch (error) {
+
+    }
+
+    console.log("GIF link:", inputValue);
   };
 
   const renderConnectedContainer = () => {
@@ -177,7 +195,7 @@ const App = () => {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            submitGif();
+            sendGif();
           }}
         >
           <input
