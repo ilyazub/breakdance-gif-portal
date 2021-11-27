@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Program, Provider, web3 } from "@project-serum/anchor";
 const { SystemProgram, Keypair } = web3;
@@ -61,7 +61,7 @@ const App = () => {
       console.log("Got the account", account);
       setGifList(account.gifList);
     } catch (error) {
-      console.error("Error whike fetching gifs: ", error);
+      console.error("Error while fetching gifs: ", error);
       setGifList(null);
     }
   };
@@ -159,7 +159,7 @@ const App = () => {
         accounts: {
           baseAccount: baseAccount.publicKey,
           user: provider.wallet.publicKey,
-        }
+        },
       });
 
       console.log("GIF successfully sent to program:", inputValue);
@@ -170,6 +170,25 @@ const App = () => {
 
     console.log("GIF link:", inputValue);
   };
+
+  const handleUpvote = async (gifLink) => {
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+
+      await program.rpc.upvoteGif(gifLink, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+
+      console.log("GIF successfully sent to program:", inputValue);
+      await getGifList();
+    } catch (error) {
+      console.error("Error sending GIF:", error);
+    }
+  }
 
   const renderConnectedContainer = () => {
     if (gifList == null) {
@@ -207,10 +226,7 @@ const App = () => {
 
         <div className="gif-grid">
           {gifList.map((item, index) => (
-            <div className="gif-item" key={index}>
-              <span className="gif-address-text">Added by {item.userAddress.toString()}</span>
-              <img src={item.gifLink} alt={item.gifLink} />
-            </div>
+            <GifItem {...item} handleUpvote={handleUpvote} key={index} />
           ))}
         </div>
       </div>
@@ -242,5 +258,27 @@ const App = () => {
     </div>
   );
 };
+
+function GifItem({ userAddress, gifLink, upvotes, handleUpvote }) {
+  const onClick = useCallback(async event => {
+    event.preventDefault();
+
+    handleUpvote(gifLink)
+  });
+
+  return (
+    <div className="gif-item">
+      <span className="gif-address-text">
+        Added by {userAddress.toString()}
+      </span>
+      <img src={gifLink} alt={gifLink} />
+
+      <p>
+        <span className="gif-address-text">{upvotes.toString()}</span>
+        <button onClick={onClick}>Upvote</button>
+      </p>
+    </div>
+  );
+}
 
 export default App;
