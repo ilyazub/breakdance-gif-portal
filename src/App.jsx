@@ -186,7 +186,25 @@ const App = () => {
       console.log("GIF successfully sent to program:", inputValue);
       await getGifList();
     } catch (error) {
-      console.error("Error sending GIF:", error);
+      console.error("Error upvoting GIF:", error);
+    }
+  }
+
+  const handleTip = async (receiverPubkey, amount) => {
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+
+      // Number#toString is used to handle floats
+      await program.rpc.tip(amount.toString(), {
+        accounts: {
+          from: provider.wallet.publicKey,
+          to: receiverPubkey,
+          systemProgram: SystemProgram.programId,
+        },
+      });
+    } catch (error) {
+      console.error("Error sending tip:", error);
     }
   }
 
@@ -226,7 +244,7 @@ const App = () => {
 
         <div className="gif-grid">
           {gifList.map((item, index) => (
-            <GifItem {...item} handleUpvote={handleUpvote} key={index} />
+            <GifItem {...item} handleUpvote={handleUpvote} handleTip={handleTip} key={index} />
           ))}
         </div>
       </div>
@@ -259,12 +277,21 @@ const App = () => {
   );
 };
 
-function GifItem({ userAddress, gifLink, upvotes, handleUpvote }) {
-  const onClick = useCallback(async event => {
-    event.preventDefault();
+function GifItem({ userAddress, gifLink, upvotes, handleUpvote, handleTip }) {
+  const [tipValue, setTipValue] = useState(1.337);
 
-    handleUpvote(gifLink)
+  const onClick = useCallback(async event => {
+    handleUpvote(gifLink);
   });
+
+  const onClickTip = useCallback(async event => {
+    handleTip(userAddress, tipValue);
+  });
+
+  const onTipValueChange = useCallback(async event => {
+    event.preventDefault();
+    setTipValue(Number.parseFloat(event.target.value));
+  })
 
   return (
     <div className="gif-item">
@@ -273,10 +300,13 @@ function GifItem({ userAddress, gifLink, upvotes, handleUpvote }) {
       </span>
       <img src={gifLink} alt={gifLink} />
 
-      <p>
-        <span className="gif-address-text">{upvotes.toString()}</span>
-        <button onClick={onClick}>Upvote</button>
-      </p>
+      <div className="buttons">
+        <p className="button" onClick={onClick} title={`${upvotes.toString()} upvotes`}>{upvotes.toString()} &#x2B06;</p>
+        <p className="button">
+          Tip <input placeholder={tipValue} onChange={onTipValueChange} /> SOL
+          <input type="button" value="&#x1F4B0;" onClick={onClickTip} required />
+        </p>
+      </div>
     </div>
   );
 }
