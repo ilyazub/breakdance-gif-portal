@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import inject from '@rollup/plugin-inject'
+import path from 'path'
 
 export default defineConfig({
   plugins: [
@@ -23,5 +24,10 @@ export default defineConfig({
     include: [
       'buffer',
     ]
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   },
 })

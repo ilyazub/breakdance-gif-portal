@@ -18,16 +18,18 @@
     ],
     "strict": true,
     "outDir": "dist",
-    "module": "CommonJS",
     "moduleResolution": "Node",
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "esnext",
+    "target": "ES2018",
     "resolveJsonModule": true
   },
   "include": [
     "src/**/*",
     "types/*",
     "*"
-  ]
+  ],
+  "paths": {
+    "@/*": ["src/*"]
+  }
 }

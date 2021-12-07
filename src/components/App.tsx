@@ -1,30 +1,12 @@
-import React, { useMemo, useCallback, useEffect, useState } from "react";
-import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Wallet } from "@project-serum/anchor";
+import { Connection } from "@solana/web3.js";
 
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-import {
-  getLedgerWallet,
-  getPhantomWallet,
-  getSlopeWallet,
-  getSolflareWallet,
-  getSolletExtensionWallet,
-  getSolletWallet,
-  getTorusWallet,
-} from "@solana/wallet-adapter-wallets";
-
-import {
-  WalletModalProvider,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-
-import { clusterApiUrl, Connection } from "@solana/web3.js";
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 import {
   createGifAccount,
@@ -32,11 +14,11 @@ import {
   handleUpvote,
   sendGif,
   getGifList,
-} from "./gif-portal";
+} from "@/gif-portal";
 
-import "@solana/wallet-adapter-react-ui/styles.css";
+import { GifItem } from "./GifItem";
 
-import twitterLogo from "./assets/twitter-logo.svg";
+import twitterLogo from "@/assets/twitter-logo.svg";
 import "./App.css";
 
 const TWITTER_HANDLE = "ilyazub_";
@@ -59,7 +41,7 @@ const App = () => {
       console.log("Fetching GIF list...");
 
       const gifList = await getGifList(connection, wallet);
-      setGifList(gifList);
+      await setGifList(gifList);
     }
   };
 
@@ -170,83 +152,4 @@ const App = () => {
   );
 };
 
-function GifItem({ userAddress, gifLink, upvotes, handleUpvote, handleTip }) {
-  const [tipValue, setTipValue] = useState(1.337);
-
-  const onClick = useCallback(async (event) => {
-    handleUpvote(gifLink);
-  }, []);
-
-  const onClickTip = useCallback(
-    async (event) => {
-      handleTip(userAddress, tipValue);
-    },
-    [userAddress, tipValue]
-  );
-
-  const onTipValueChange = useCallback(async (event) => {
-    event.preventDefault();
-    setTipValue(Number.parseFloat(event.target.value));
-  }, []);
-
-  return (
-    <div className="gif-item">
-      <span className="gif-address-text">
-        Added by {userAddress.toString()}
-      </span>
-      <img src={gifLink} alt={gifLink} />
-
-      <div className="buttons">
-        <p
-          className="button"
-          onClick={onClick}
-          title={`${upvotes.toString()} upvotes`}
-        >
-          {upvotes.toString()} &#x2B06;
-        </p>
-        <p className="button">
-          Tip <input placeholder={tipValue} onChange={onTipValueChange} /> SOL
-          <input
-            type="button"
-            value="&#x1F4B0;"
-            onClick={onClickTip}
-            required
-          />
-        </p>
-      </div>
-    </div>
-  );
-}
-
-const AppWithWallet = () => {
-  const network = WalletAdapterNetwork.Devnet;
-
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  const wallets = useMemo(
-    () => [
-      getPhantomWallet(),
-      getSlopeWallet(),
-      getSolflareWallet(),
-      getTorusWallet({
-        options: { clientId: "Get a client ID @ https://developer.tor.us" },
-      }),
-      getLedgerWallet(),
-      getSolletWallet({ network }),
-      getSolletExtensionWallet({ network }),
-    ],
-    [network]
-  );
-
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <App />
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  );
-};
-
-export default AppWithWallet;
+export default App;

@@ -16,6 +16,7 @@ const programID = new PublicKey(idl.metadata.address);
 
 const opts = {
   preflightCommitment: "processed",
+  commitment: "processed",
 };
 
 const getProvider = (connection: Connection, wallet: Wallet) => {
